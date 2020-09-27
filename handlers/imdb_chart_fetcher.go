@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -41,11 +42,12 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 	i.l.Println("Handle GET Products")
 	url := "https://www.imdb.com/india/top-rated-indian-movies/"
 	urls := i.getMovieUrl(url)
+
 	i.parseMovieFromUrlsConcurrently(rw, urls, 2)
 
 }
 
-func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(rw http.ResponseWriter, urls []string, k int) {
+func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(rw http.ResponseWriter, urls []string, k int) error {
 	if len(urls) < k {
 		k = len(urls)
 	}
@@ -74,8 +76,8 @@ func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(rw http.ResponseWriter
 	for _, v := range movies {
 		fmt.Println(v)
 	}
-	movies.ToJSON(rw)
-
+	e := json.NewEncoder(rw)
+	return e.Encode(movies)
 }
 
 func (i *ImdbChartFetcher) parseEachUrlJob(wg *sync.WaitGroup, movieSNo int, url string, movieChan chan data.Movie, jobOrder chan int) {
