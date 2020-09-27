@@ -58,13 +58,19 @@ func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(urls []string, k int) 
 	}
 	wg.Wait()
 	fmt.Println("len chan :", cap(movie), movie)
+	movieOrderMap := make(map[int]data.Movie)
+
 	var movies []*data.Movie
 	for j := 0; j < k; j++ {
-		m := <-movie
-		fmt.Println(m)
+		movideDetail := <-movie
+		movieOrderId := <-jobOrder
+		movieOrderMap[movieOrderId] = movideDetail
 	}
 	fmt.Println("hehe")
-	movieOrderMap := make make(map[int]data.Movie)
+	for j := 0; j < k; j++ {
+		movie := movieOrderMap[j]
+		movies = append(movies, &movie)
+	}
 	for _, v := range movies {
 		fmt.Println(v)
 	}
