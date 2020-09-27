@@ -5,14 +5,15 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/wajidzaman/imdb_fetcher/data"
-	"golang.org/x/net/html"
 )
 
 const (
-	IMDB_PREFIX = "https://www.imdb.com/title"
+	IMDB_PREFIX    = "https://www.imdb.com/title"
+	IMDB_URL_REGEX = `<a href=\"/title/tt(.*?)"`
 )
 
 type ImdbChartFetcher struct {
@@ -34,17 +35,7 @@ func (i *ImdbChartFetcher) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	// if no method is satisfied return an error
 	rw.WriteHeader(http.StatusMethodNotAllowed)
 }
-func (i *ImdbChartFetcher) getHref(t html.Token) (ok bool, href string) {
-	// Iterate over token attributes until we find an "href"
-	for _, a := range t.Attr {
-		if a.Key == "href" && strings.Contains(a.Val, "title") {
-			href = a.Val
-			ok = true
-		}
-	}
 
-	return
-}
 func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Request) {
 	i.l.Println("Handle GET Products")
 
@@ -57,48 +48,28 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 
 	fmt.Println("Response status:", resp.Status)
 
-	//scanner := bufio.NewScanner(resp.Body)
-	b := resp.Body
-	defer b.Close() // close Body when the function completes
+	b, _ := ioutil.ReadAll(resp.Body)
+	body := string(b)
 
-	z := html.NewTokenizer(b)
+	// parsing url from html for getting movies detail
+	body = strings.Replace(body, "\n", "", -1)
+	re := regexp.MustCompile(IMDB_URL_REGEX)
+	rawUrls := re.FindAllString(body, -1)
+	m := make(map[string]bool)
 	var urls []string
-	count := 0
-	for {
-
-		tt := z.Next()
-		//	b := z.Text()
-		//fmt.Println("ttt----", tt.Data)
-		switch {
-		case tt == html.ErrorToken:
-			// End of the document, we're done
-
-		case tt == html.StartTagToken:
-			t := z.Token()
-
-			// Check if the token is an <a> tag
-
-			isAnchor := t.Data == "a"
-
-			if !isAnchor {
-				continue
-			}
-
-			// Extract the href value, if there is one
-			ok, url := i.getHref(t)
-			if !ok {
-
-				continue
-			}
-			fmt.Println("url : ", url)
-			// Make sure the url begines in http**
-			count++
+	for _, e := range rawUrls {
+		if m[e] == false {
+			r, _ := regexp.Compile("=\"")
+			index := r.FindStringIndex(e)
+			url := e[index[0]+2 : len(e)-1]
+			m[e] = true
 			urls = append(urls, url)
 
 		}
-		if count >= 250 {
-			break
-		}
+
+	}
+	for _, url := range urls {
+		fmt.Println("url:", url)
 	}
 
 	url = IMDB_PREFIX + urls[0]
@@ -112,11 +83,11 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 	fmt.Println("Response status:", resp.Status)
 
 	//scanner := bufio.NewScanner(resp.Body)
-	body, _ := ioutil.ReadAll(resp.Body)
+	bodyHtml, _ := ioutil.ReadAll(resp.Body)
 	//defer b.Close() // close Body when the function completes
 	fmt.Println("-----------")
 	fmt.Println("")
-	data.GetMoviesByParsingHTML(string(body))
+	data.GetMoviesByParsingHTML(string(bodyHtml))
 
 	// fetch the products from the datastore
 	/*
