@@ -20,15 +20,13 @@ const (
 )
 
 type Movie struct {
-	Title      string
-	Year       int64
-	Rating     float64
-	Summary    string
-	Duration   string
-	GenreArray []string
+	Title    string
+	Year     int64
+	Rating   float64
+	Summary  string
+	Duration string
+	Genre    string
 }
-
-type Movies []*Movie
 
 // ToJSON serializes the contents of the collection to JSON
 // NewEncoder provides better performance than json.Unmarshal as it does not
@@ -36,14 +34,14 @@ type Movies []*Movie
 // this reduces allocations and the overheads of the service
 //
 // https://golang.org/pkg/encoding/json/#NewEncoder
-func (m *Movies) ToJSON(w io.Writer) error {
+func (m *Movie) ToJSON(w io.Writer) error {
 	e := json.NewEncoder(w)
 	return e.Encode(m)
 }
 
 // GetProducts returns a list of products
 
-func GetMoviesByParsingHTML(body string) {
+func GetMoviesByParsingHTML(body string) *Movie {
 	var title string
 	var year int64
 	var rating float64
@@ -153,12 +151,13 @@ func GetMoviesByParsingHTML(body string) {
 			}
 		}
 	}
-
-	fmt.Println(title)
-	fmt.Println(year)
-	fmt.Println(rating)
-	fmt.Println(summary)
-	fmt.Println(duration)
-	fmt.Println(genreArray)
+	return &Movie{
+		Title:    title,
+		Year:     year,
+		Rating:   rating,
+		Summary:  summary,
+		Duration: duration,
+		Genre:    strings.Join(genreArray, ","),
+	}
 
 }
