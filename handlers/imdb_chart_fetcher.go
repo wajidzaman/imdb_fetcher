@@ -56,7 +56,7 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 	defer b.Close() // close Body when the function completes
 
 	z := html.NewTokenizer(b)
-
+	var urls []string
 	for {
 		tt := z.Next()
 		//	b := z.Text()
@@ -84,11 +84,10 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 		}
 
 		// Make sure the url begines in http**
-		hasProto := strings.Index(url, "http") == 0
-
-		fmt.Println("link------", url, hasProto)
+		urls = append(urls, url)
 
 	}
+
 	// fetch the products from the datastore
 	/*
 		lp := data.GetProducts()
