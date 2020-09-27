@@ -53,16 +53,18 @@ func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(urls []string, k int) 
 	var wg sync.WaitGroup
 	for j := 0; j < k; j++ {
 		wg.Add(1)
-		go i.parseEachUrl(&wg, j, IMDB_PREFIX+urls[j], movie)
+		go i.parseEachUrl(&wg, j, IMDB_PREFIX+urls[j], &movie)
 	}
 	wg.Wait()
 	var movies []*data.Movie
 	for m := range movie {
 		movies = append(movies, &m)
 	}
+	fmt.Println(movies)
+
 }
 
-func (i *ImdbChartFetcher) parseEachUrl(wg *sync.WaitGroup, movieSNo int, url string, movieChan chan data.Movie) {
+func (i *ImdbChartFetcher) parseEachUrl(wg *sync.WaitGroup, movieSNo int, url string, movieChan *chan data.Movie) {
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -76,7 +78,7 @@ func (i *ImdbChartFetcher) parseEachUrl(wg *sync.WaitGroup, movieSNo int, url st
 	fmt.Println("-----------")
 	fmt.Println("")
 	movie := data.GetMoviesByParsingHTML(string(bodyHtml))
-	movieChan <- *movie
+	*movieChan <- *movie
 	fmt.Println("movies:", movie)
 	wg.Done()
 }
