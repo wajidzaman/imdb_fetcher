@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	IMDB_PREFIX    = "https://www.imdb.com/title"
+	IMDB_PREFIX    = "https://www.imdb.com"
 	IMDB_URL_REGEX = `<a href=\"/title/tt(.*?)"`
 )
 
@@ -51,7 +51,7 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 	b, _ := ioutil.ReadAll(resp.Body)
 	body := string(b)
 
-	// parsing url from html for getting movies detail
+	// parsing url from html for getting movies details
 	body = strings.Replace(body, "\n", "", -1)
 	re := regexp.MustCompile(IMDB_URL_REGEX)
 	rawUrls := re.FindAllString(body, -1)
