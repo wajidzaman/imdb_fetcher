@@ -95,6 +95,7 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 	}
 
 	url = IMDB_PREFIX + urls[0]
+	fmt.Println("-------", url)
 	resp, err = http.Get(url)
 	if err != nil {
 		panic(err)
