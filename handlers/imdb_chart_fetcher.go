@@ -41,7 +41,7 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 	i.l.Println("Handle GET Products")
 	url := "https://www.imdb.com/india/top-rated-indian-movies/"
 	urls := i.getMovieUrl(url)
-	i.parseMovieFromUrlsConcurrently(urls, 1)
+	i.parseMovieFromUrlsConcurrently(urls, 2)
 
 }
 
@@ -52,6 +52,7 @@ func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(urls []string, k int) 
 	movie := make(chan data.Movie, k)
 	var wg sync.WaitGroup
 	for j := 0; j < k; j++ {
+		wg.Add(1)
 		go i.parseEachUrl(&wg, j, IMDB_PREFIX+urls[j], movie)
 	}
 	wg.Wait()
