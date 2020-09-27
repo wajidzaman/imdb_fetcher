@@ -50,26 +50,28 @@ func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(urls []string, k int) 
 		k = len(urls)
 	}
 	movie := make(chan data.Movie, k)
+	jobOrder := make(chan int, k)
 	var wg sync.WaitGroup
 	for j := 0; j < k; j++ {
 		wg.Add(1)
-		go i.parseEachUrl(&wg, j, IMDB_PREFIX+urls[j], movie)
+		go i.parseEachUrlJob(&wg, j, IMDB_PREFIX+urls[j], movie, jobOrder)
 	}
 	wg.Wait()
 	fmt.Println("len chan :", cap(movie), movie)
 	var movies []*data.Movie
 	for j := 0; j < k; j++ {
-		t := <-movie
-		fmt.Println(t)
+		m := <-movie
+		fmt.Println(m)
 	}
 	fmt.Println("hehe")
+	movieOrderMap := make make(map[int]data.Movie)
 	for _, v := range movies {
 		fmt.Println(v)
 	}
 
 }
 
-func (i *ImdbChartFetcher) parseEachUrl(wg *sync.WaitGroup, movieSNo int, url string, movieChan chan data.Movie) {
+func (i *ImdbChartFetcher) parseEachUrlJob(wg *sync.WaitGroup, movieSNo int, url string, movieChan chan data.Movie, jobOrder chan int) {
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -84,7 +86,9 @@ func (i *ImdbChartFetcher) parseEachUrl(wg *sync.WaitGroup, movieSNo int, url st
 	fmt.Println("")
 	movie := data.GetMoviesByParsingHTML(string(bodyHtml))
 	movieChan <- movie
+	jobOrder <- movieSNo
 	fmt.Println("movies:", movie)
+
 	wg.Done()
 }
 
