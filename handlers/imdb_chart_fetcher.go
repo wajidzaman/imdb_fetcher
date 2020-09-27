@@ -63,7 +63,7 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 
 	z := html.NewTokenizer(b)
 	var urls []string
-	count :=0
+	count := 0
 	for {
 
 		tt := z.Next()
@@ -72,7 +72,7 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 		switch {
 		case tt == html.ErrorToken:
 			// End of the document, we're done
-			break
+
 		case tt == html.StartTagToken:
 			t := z.Token()
 
@@ -92,9 +92,12 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 			}
 			fmt.Println("url : ", url)
 			// Make sure the url begines in http**
+			count++
 			urls = append(urls, url)
-			if count>=250
-				break
+
+		}
+		if count >= 250 {
+			break
 		}
 	}
 
