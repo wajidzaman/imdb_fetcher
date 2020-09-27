@@ -87,16 +87,7 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 	//defer b.Close() // close Body when the function completes
 	fmt.Println("-----------")
 	fmt.Println("")
-	data.GetMoviesByParsingHTML(string(bodyHtml))
+	movie := data.GetMoviesByParsingHTML(string(bodyHtml))
+	fmt.Println("movies:", movie)
 
-	// fetch the products from the datastore
-	/*
-		lp := data.GetProducts()
-
-		// serialize the list to JSON
-		err := lp.ToJSON(rw)
-		if err != nil {
-			http.Error(rw, "Unable to marshal json", http.StatusInternalServerError)
-		}
-	*/
 }
