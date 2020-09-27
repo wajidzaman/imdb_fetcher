@@ -43,7 +43,7 @@ func (m *Movies) ToJSON(w io.Writer) error {
 
 // GetProducts returns a list of products
 
-func GetMoviesByParsingHTML(body string) *Movie {
+func GetMoviesByParsingHTML(body string) Movie {
 	var title string
 	var year int64
 	var rating float64
@@ -153,7 +153,7 @@ func GetMoviesByParsingHTML(body string) *Movie {
 			}
 		}
 	}
-	return &Movie{
+	return Movie{
 		Title:    title,
 		Year:     year,
 		Rating:   rating,
