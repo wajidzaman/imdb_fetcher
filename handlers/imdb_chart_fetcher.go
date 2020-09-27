@@ -2,11 +2,17 @@ package handlers
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
 
+	"github.com/wajidzaman/imdb_fetcher/data"
 	"golang.org/x/net/html"
+)
+
+const (
+	IMDB_PREFIX = "https://www.imdb.com/title/"
 )
 
 type ImdbChartFetcher struct {
@@ -87,6 +93,20 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 		urls = append(urls, url)
 
 	}
+
+	url = IMDB_PREFIX + urls[0]
+	resp, err = http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("Response status:", resp.Status)
+
+	//scanner := bufio.NewScanner(resp.Body)
+	body, _ := ioutil.ReadAll(resp.Body)
+	//defer b.Close() // close Body when the function completes
+	data.GetMoviesByParsingHTML(string(body))
 
 	// fetch the products from the datastore
 	/*
