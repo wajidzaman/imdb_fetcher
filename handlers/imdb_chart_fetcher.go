@@ -38,8 +38,40 @@ func (i *ImdbChartFetcher) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Request) {
 	i.l.Println("Handle GET Products")
-
 	url := "https://www.imdb.com/india/top-rated-indian-movies/"
+	urls := i.getMovieUrl(url)
+	i.parseMovieFromUrls(urls, 1)
+
+}
+
+func (i *ImdbChartFetcher) parseMovieFromUrls(urls []string, k int) {
+	if len(urls) < k {
+		k = len(urls)
+	}
+	for j := 0; j < k; j++ {
+		i.parseEachUrl(j, IMDB_PREFIX+urls[j])
+	}
+}
+
+func (i *ImdbChartFetcher) parseEachUrl(movieSNo int, url string) {
+
+	resp, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("Response status:", resp.Status)
+
+	bodyHtml, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("-----------")
+	fmt.Println("")
+	movie := data.GetMoviesByParsingHTML(string(bodyHtml))
+	fmt.Println("movies:", movie)
+
+}
+
+func (i *ImdbChartFetcher) getMovieUrl(url string) []string {
 	resp, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -72,22 +104,5 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 		fmt.Println("url:", url)
 	}
 
-	url = IMDB_PREFIX + urls[0]
-	fmt.Println("-------", url)
-	resp, err = http.Get(url)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-
-	fmt.Println("Response status:", resp.Status)
-
-	//scanner := bufio.NewScanner(resp.Body)
-	bodyHtml, _ := ioutil.ReadAll(resp.Body)
-	//defer b.Close() // close Body when the function completes
-	fmt.Println("-----------")
-	fmt.Println("")
-	movie := data.GetMoviesByParsingHTML(string(bodyHtml))
-	fmt.Println("movies:", movie)
-
+	return urls
 }
