@@ -7,13 +7,15 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/wajidzaman/imdb_fetcher/handlers"
 )
 
 func main() {
 	l := log.New(os.Stdout, "api ", log.LstdFlags)
 
 	// create the handlers
-	ph := handler.ImdbChartFetcher(l)
+	ph := handlers.NewImdbChartFetcher(l)
 
 	// create a new serve mux and register the handlers
 	sm := http.NewServeMux()
