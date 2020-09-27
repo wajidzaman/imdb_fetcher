@@ -36,7 +36,7 @@ type Movie struct {
 // https://golang.org/pkg/encoding/json/#NewEncoder
 type Movies []*Movie
 
-func (m *Movies) ToJSON(w io.Writer) error {
+func (m Movies) ToJSON(w io.Writer) error {
 	e := json.NewEncoder(w)
 	return e.Encode(m)
 }

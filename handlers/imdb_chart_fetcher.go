@@ -41,11 +41,11 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 	i.l.Println("Handle GET Products")
 	url := "https://www.imdb.com/india/top-rated-indian-movies/"
 	urls := i.getMovieUrl(url)
-	i.parseMovieFromUrlsConcurrently(urls, 2)
+	i.parseMovieFromUrlsConcurrently(rw, urls, 2)
 
 }
 
-func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(urls []string, k int) {
+func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(rw http.ResponseWriter, urls []string, k int) {
 	if len(urls) < k {
 		k = len(urls)
 	}
