@@ -34,7 +34,9 @@ type Movie struct {
 // this reduces allocations and the overheads of the service
 //
 // https://golang.org/pkg/encoding/json/#NewEncoder
-func (m *Movie) ToJSON(w io.Writer) error {
+type Movies []*Movie
+
+func (m *Movies) ToJSON(w io.Writer) error {
 	e := json.NewEncoder(w)
 	return e.Encode(m)
 }
