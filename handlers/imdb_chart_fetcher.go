@@ -88,7 +88,7 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 
 			continue
 		}
-
+		fmt.Println("url : ", url)
 		// Make sure the url begines in http**
 		urls = append(urls, url)
 
@@ -106,6 +106,8 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 	//scanner := bufio.NewScanner(resp.Body)
 	body, _ := ioutil.ReadAll(resp.Body)
 	//defer b.Close() // close Body when the function completes
+	fmt.Println("-----------")
+	fmt.Println("")
 	data.GetMoviesByParsingHTML(string(body))
 
 	// fetch the products from the datastore
