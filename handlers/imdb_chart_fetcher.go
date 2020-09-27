@@ -82,7 +82,7 @@ func (i *ImdbChartFetcher) parseEachUrl(wg *sync.WaitGroup, movieSNo int, url st
 	fmt.Println("-----------")
 	fmt.Println("")
 	movie := data.GetMoviesByParsingHTML(string(bodyHtml))
-	movieChan <- *movie
+	movieChan <- movie
 	fmt.Println("movies:", movie)
 	wg.Done()
 }
