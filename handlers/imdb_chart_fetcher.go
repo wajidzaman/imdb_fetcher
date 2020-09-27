@@ -11,6 +11,18 @@ type ImdbChartFetcher struct {
 
 func NewImdbChartFetcher(l *log.Logger) *ImdbChartFetcher {
 	return &ImdbChartFetcher{l}
+
+}
+func (i *ImdbChartFetcher) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+	// handle the request for a list of products
+	if r.Method == http.MethodGet {
+		i.fetchImdbChart(rw, r)
+		return
+	}
+
+	// catch all
+	// if no method is satisfied return an error
+	rw.WriteHeader(http.StatusMethodNotAllowed)
 }
 func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Request) {
 	i.l.Println("Handle GET Products")
