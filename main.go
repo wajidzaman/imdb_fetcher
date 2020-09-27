@@ -51,7 +51,7 @@ func main() {
 	sig := <-c
 	log.Println("Got signal:", sig)
 
-	// gracefully shutdown the server, waiting max 30 seconds for current operations to complete
+	// gracefully shutdown the server, waiting max 30 minutes for current operations to complete
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Minute)
 	s.Shutdown(ctx)
 }

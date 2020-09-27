@@ -40,7 +40,22 @@ func (i *ImdbChartFetcher) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Request) {
 	i.l.Println("Handle GET Products")
-	url := "https://www.imdb.com/india/top-rated-indian-movies/"
+	inputUrl, ok := r.URL.Query()["url"]
+
+	if !ok || len(inputUrl[0]) < 1 {
+		log.Println("url is missing")
+		return
+	}
+	url := inputUrl[0]
+	movieCount, ok := r.URL.Query()["k"]
+
+	if !ok || len(movieCount[0]) < 1 {
+		log.Println("k is missing")
+		return
+	}
+
+	fmt.Println(url, movieCount[0])
+	//url := "https://www.imdb.com/india/top-rated-indian-movies/"
 	urls := i.getMovieUrl(url)
 
 	i.parseMovieFromUrlsConcurrently(rw, urls, 2)
