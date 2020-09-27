@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	IMDB_PREFIX = "https://www.imdb.com/title/"
+	IMDB_PREFIX = "https://www.imdb.com/title"
 )
 
 type ImdbChartFetcher struct {
@@ -64,34 +64,36 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 	z := html.NewTokenizer(b)
 	var urls []string
 	for {
+
 		tt := z.Next()
 		//	b := z.Text()
 		//fmt.Println("ttt----", tt.Data)
 		switch {
 		case tt == html.ErrorToken:
 			// End of the document, we're done
-			return
+			break
+		case tt == html.StartTagToken:
+			t := z.Token()
+
+			// Check if the token is an <a> tag
+
+			isAnchor := t.Data == "a"
+
+			if !isAnchor {
+				continue
+			}
+
+			// Extract the href value, if there is one
+			ok, url := i.getHref(t)
+			if !ok {
+
+				continue
+			}
+			fmt.Println("url : ", url)
+			// Make sure the url begines in http**
+			urls = append(urls, url)
+
 		}
-		t := z.Token()
-
-		// Check if the token is an <a> tag
-
-		isAnchor := t.Data == "a"
-
-		if !isAnchor {
-			continue
-		}
-
-		// Extract the href value, if there is one
-		ok, url := i.getHref(t)
-		if !ok {
-
-			continue
-		}
-		fmt.Println("url : ", url)
-		// Make sure the url begines in http**
-		urls = append(urls, url)
-
 	}
 
 	url = IMDB_PREFIX + urls[0]
