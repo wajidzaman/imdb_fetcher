@@ -56,6 +56,7 @@ func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(urls []string, k int) 
 		go i.parseEachUrl(&wg, j, IMDB_PREFIX+urls[j], &movie)
 	}
 	wg.Wait()
+	fmt.Println("len chan :", cap(movie), movie)
 	var movies []*data.Movie
 	for m := range movie {
 		movies = append(movies, &m)
