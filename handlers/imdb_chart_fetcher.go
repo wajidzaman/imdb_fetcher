@@ -56,8 +56,8 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 
 	urls := i.getMovieUrl(url)
 
-	i.parseMovieFromUrlsConcurrently(rw, urls, k)
-
+	err = i.parseMovieFromUrlsConcurrently(rw, urls, k)
+	i.l.Println("error in parsing :", err)
 }
 
 func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(rw http.ResponseWriter, urls []string, k int) error {
