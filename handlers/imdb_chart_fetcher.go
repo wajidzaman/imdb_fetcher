@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -48,17 +49,15 @@ func (i *ImdbChartFetcher) fetchImdbChart(rw http.ResponseWriter, r *http.Reques
 	}
 	url := inputUrl[0]
 	movieCount, ok := r.URL.Query()["k"]
-
-	if !ok || len(movieCount[0]) < 1 {
+	k, err := strconv.Atoi(movieCount[0])
+	if !ok || len(movieCount[0]) < 1 || err != nil {
 		log.Println("k is missing")
 		return
 	}
 
-	fmt.Println(url, movieCount[0])
-	//url := "https://www.imdb.com/india/top-rated-indian-movies/"
 	urls := i.getMovieUrl(url)
 
-	i.parseMovieFromUrlsConcurrently(rw, urls, 2)
+	i.parseMovieFromUrlsConcurrently(rw, urls, k)
 
 }
 
