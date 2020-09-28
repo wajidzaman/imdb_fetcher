@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -67,13 +66,13 @@ func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(rw http.ResponseWriter
 	}
 	movie := make(chan data.Movie, k)
 	jobOrder := make(chan int, k)
+
 	var wg sync.WaitGroup
 	for j := 0; j < k; j++ {
-		wg.Add(1)
+		wg.Add(1) //maintaining the number of goroutines we are firing
 		go i.parseEachUrlJob(&wg, j, IMDB_PREFIX+urls[j], movie, jobOrder)
 	}
-	wg.Wait()
-	fmt.Println("len chan :", cap(movie), movie)
+	wg.Wait() // waiting for all gorutine to complete there processing.
 	movieOrderMap := make(map[int]data.Movie)
 
 	var movies []*data.Movie
@@ -82,14 +81,11 @@ func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(rw http.ResponseWriter
 		movieOrderId := <-jobOrder
 		movieOrderMap[movieOrderId] = movideDetail
 	}
-	fmt.Println("hehe")
 	for j := 0; j < k; j++ {
 		movie := movieOrderMap[j]
 		movies = append(movies, &movie)
 	}
-	for _, v := range movies {
-		fmt.Println(v)
-	}
+	i.l.Println("movies return", len(movies))
 	e := json.NewEncoder(rw)
 	return e.Encode(movies)
 }
@@ -110,7 +106,7 @@ func (i *ImdbChartFetcher) parseEachUrlJob(wg *sync.WaitGroup, movieSNo int, url
 	movie := data.GetMoviesByParsingHTML(string(bodyHtml))
 	movieChan <- movie
 	jobOrder <- movieSNo
-	fmt.Println("movies:", movie)
+	//fmt.Println("movies:", movie)
 
 	wg.Done()
 }
@@ -122,7 +118,7 @@ func (i *ImdbChartFetcher) getMovieUrl(url string) []string {
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("Response status:", resp.Status)
+	i.l.Println("Response status:", resp.Status)
 
 	b, _ := ioutil.ReadAll(resp.Body)
 	body := string(b)
