@@ -86,6 +86,9 @@ func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(rw http.ResponseWriter
 		movies = append(movies, &movie)
 	}
 	i.l.Println("movies return", len(movies))
+	for j, movie := range movies {
+		i.l.Println(j, " : ", movie)
+	}
 	e := json.NewEncoder(rw)
 	return e.Encode(movies)
 }
