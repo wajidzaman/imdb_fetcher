@@ -95,6 +95,7 @@ func (i *ImdbChartFetcher) parseMovieFromUrlsConcurrently(rw http.ResponseWriter
 }
 
 func (i *ImdbChartFetcher) parseEachUrlJob(wg *sync.WaitGroup, movieSNo int, url string, movieChan chan data.Movie, jobOrder chan int) {
+	i.l.Println("fetching url : ", url)
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -102,11 +103,10 @@ func (i *ImdbChartFetcher) parseEachUrlJob(wg *sync.WaitGroup, movieSNo int, url
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("Response status:", resp.Status)
+	i.l.Println("Url :", url, " Response status:", resp.Status)
 
 	bodyHtml, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("-----------")
-	fmt.Println("")
+
 	movie := data.GetMoviesByParsingHTML(string(bodyHtml))
 	movieChan <- movie
 	jobOrder <- movieSNo
@@ -142,11 +142,6 @@ func (i *ImdbChartFetcher) getMovieUrl(url string) []string {
 			urls = append(urls, url)
 
 		}
-
 	}
-	for _, url := range urls {
-		fmt.Println("url:", url)
-	}
-
 	return urls
 }
